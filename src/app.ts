@@ -11,6 +11,7 @@ import winston from "winston";
 import apiRouter from "./api";
 import { errorLogger, requestLogger } from "./middleware";
 import { mkdirSync } from "fs";
+import { titleIdManager } from "./titleIdManager";
 
 // Prepare data directory
 const dataDirectory = process.env.DATA_PATH ?? "data";
@@ -82,3 +83,16 @@ app.use("/api", apiRouter);
 
 // Error-handling
 app.use(errorLogger);
+
+// Graceful shutdown handling
+process.on('SIGINT', () => {
+  logger.info('Received SIGINT');
+  titleIdManager.stop();
+  process.exit(0);
+});
+
+process.on('SIGTERM', () => {
+  logger.info('Received SIGTERM');
+  titleIdManager.stop();
+  process.exit(0);
+});

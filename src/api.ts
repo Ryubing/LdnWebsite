@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { redisClient } from "./app";
 import gamelist from "./gamelist.json";
+import { titleIdManager } from "./titleIdManager";
 
 const router = Router();
 
@@ -74,6 +75,14 @@ router.get("/public_games", async (req, res, _next) => {
 
       if (gameListEntry) {
         modifiedGame.game_name = gameListEntry.name;
+      } else {
+        const customName = titleIdManager.getTitleName(game.title_id);
+        if (customName) {
+          modifiedGame.game_name = customName;
+        } else {
+          titleIdManager.addUnknownTitleId(game.title_id);
+          modifiedGame.game_name = "Unknown";
+        }
       }
 
       return modifiedGame;
